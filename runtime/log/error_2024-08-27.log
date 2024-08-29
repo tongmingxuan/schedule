@@ -1,0 +1,90 @@
+2024-08-27 15:27:43.926 [ERRO] {94367f683985ef1732f34e55f7f95e7d} {f5ko5k08rs0d3qilovjwqw0100ds0uo0} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在","request":{"param":{"get":{"name":"1","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 15:27:43","trace_id":"f5ko5k08rs0d3qilovjwqw0100ds0uo0"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 15:34:59.343 [ERRO] {6c3546c99e85ef17348e644abd8523ba} {f5ko5k0e7g0d3qir8wio2ng100zlhxmh} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在","request":{"param":{"get":{"name":"1","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 15:34:59","trace_id":"f5ko5k0e7g0d3qir8wio2ng100zlhxmh"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 15:35:12.704 [ERRO] {1453ace5a185ef17e6e87e0fdf23e1ad} {f5ko5k0d140d3qirf1hz64k100i2lm6a} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在","request":{"param":{"get":{"name":"1","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 15:35:12","trace_id":"f5ko5k0d140d3qirf1hz64k100i2lm6a"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 15:35:29.315 [ERRO] {980a2fc4a585ef17e7e87e0ffc5514b8} {f5ko5k0d140d3qirmobly1k2004xu3bt} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在","request":{"param":{"get":{"name":"11","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 15:35:29","trace_id":"f5ko5k0d140d3qirmobly1k2004xu3bt"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 16:13:33.727 [ERRO] {a8ab45a5b987ef170672f75b94a566f3} {f5ko5k0f1s0d3qjks46rico100qiq565} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在","request":{"param":{"get":{"name":"11","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 16:13:33","trace_id":"f5ko5k0f1s0d3qjks46rico100qiq565"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 16:18:25.339 [ERRO] {64bda88afd87ef172062882f543d5842} {f5ko5k0aj00d3qjoi2wld2c100y4ggrs} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在","request":{"param":{"get":{"name":"11","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 16:18:25","trace_id":"f5ko5k0aj00d3qjoi2wld2c100y4ggrs"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 16:19:55.900 [ERRO] {9cffada01288ef17835e20328bbe4550} {f5ko5k02e00d3qjpnoo4ni8100lxv5s1} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在:route_id:5","request":{"param":{"get":{"name":"12","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 16:19:55","trace_id":"f5ko5k02e00d3qjpnoo4ni8100lxv5s1"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 16:19:57.061 [ERRO] {2cb635e61288ef17845e203213d4c699} {f5ko5k02e00d3qjpo7yfl0s2007cmhmk} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在:route_id:5","request":{"param":{"get":{"name":"12","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 16:19:57","trace_id":"f5ko5k02e00d3qjpo7yfl0s2007cmhmk"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 16:19:57.962 [ERRO] {c477e21b1388ef17855e2032272c3ff9} {f5ko5k02e00d3qjpomurz10300ghn0e6} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在:route_id:5","request":{"param":{"get":{"name":"12","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 16:19:57","trace_id":"f5ko5k02e00d3qjpomurz10300ghn0e6"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
+2024-08-27 16:19:58.519 [ERRO] {fcaf193d1388ef17865e2032042d78c5} {f5ko5k02e00d3qjpow2oa84400bn4df2} {"a-message":"request:error","data":{"error":"exception recovered: 路由已存在:route_id:5","request":{"param":{"get":{"name":"12","push_url":"http://www.baidu.com"},"post":null},"uri":"/schedule/api/route/create"}},"stack":"1.  Schedule/internal/common.LoggerError\n    E:/golang/Schedule/internal/common/Logger.go:24\n2.  Schedule/internal/middleware.RequestLogger\n    E:/golang/Schedule/internal/middleware/logger.go:26\n3.  Schedule/internal/middleware.TraceId\n    E:/golang/Schedule/internal/middleware/TraceId.go:16\n","time":"2024-08-27 16:19:58","trace_id":"f5ko5k02e00d3qjpow2oa84400bn4df2"} 
+Stack:
+1.  Schedule/internal/common.LoggerError
+    E:/golang/Schedule/internal/common/Logger.go:20
+2.  Schedule/internal/middleware.RequestLogger
+    E:/golang/Schedule/internal/middleware/logger.go:26
+3.  Schedule/internal/middleware.TraceId
+    E:/golang/Schedule/internal/middleware/TraceId.go:16
+
