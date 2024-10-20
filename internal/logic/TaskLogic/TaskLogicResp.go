@@ -6,4 +6,5 @@ type PretreatmentResp struct {
 	TraceId   string `json:"trace_id"`
 	RouteName string `json:"route_name"`
 	RouteId   int    `json:"route_id"`
+	TaskId    int    `json:"task_id"`
 }

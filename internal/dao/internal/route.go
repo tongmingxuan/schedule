@@ -21,10 +21,11 @@ type RouteDao struct {
 // RouteColumns defines and stores column names for table route.
 type RouteColumns struct {
 	Id          string //
+	MainId      string // 主路由ID
 	Name        string // 路由名称
 	Config      string // 配置参数
 	PushUrl     string // push地址
-	NextId      string // finish后下级路由
+	ParentId    string // 上级ID
 	Concurrency string // 并发数量
 	Delay       string // 延迟多少秒运行
 	CreatedAt   string //
@@ -35,10 +36,11 @@ type RouteColumns struct {
 // routeColumns holds the columns for table route.
 var routeColumns = RouteColumns{
 	Id:          "id",
+	MainId:      "main_id",
 	Name:        "name",
 	Config:      "config",
 	PushUrl:     "push_url",
-	NextId:      "next_id",
+	ParentId:    "parent_id",
 	Concurrency: "concurrency",
 	Delay:       "delay",
 	CreatedAt:   "created_at",

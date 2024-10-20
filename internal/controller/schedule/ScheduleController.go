@@ -39,6 +39,10 @@ func (controller Schedule) EditRoute(req *ghttp.Request) {
 	common.ApiResponse(req, service.RouteService{}.EditRoute(req.GetCtx(), editRouteRequest))
 }
 
+// Pretreatment
+// @Description: 预处理
+// @receiver controller
+// @param req
 func (controller Schedule) Pretreatment(req *ghttp.Request) {
 	pretreatmentReq := request.PretreatmentReq{}
 
@@ -48,5 +52,17 @@ func (controller Schedule) Pretreatment(req *ghttp.Request) {
 		return
 	}
 
-	common.ApiResponse(req, service.TaskService{}.Pretreatment(req.GetCtx(), pretreatmentReq.RouteName, pretreatmentReq.Param))
+	common.ApiResponse(req, service.TaskService{}.Pretreatment(req.GetCtx(), pretreatmentReq.RouteName, pretreatmentReq.Param, pretreatmentReq.KeyMap))
+}
+
+func (controller Schedule) Confirm(req *ghttp.Request) {
+	ConfirmReq := request.ConfirmReq{}
+
+	if err := req.Parse(&ConfirmReq); err != nil {
+		req.SetError(err)
+
+		return
+	}
+
+	common.ApiResponse(req, service.TaskService{}.Confirm(req.GetCtx(), ConfirmReq.TraceId))
 }

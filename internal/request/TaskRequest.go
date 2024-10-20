@@ -1,9 +1,12 @@
 package request
 
+import "github.com/gogf/gf/v2/frame/g"
+
 type PretreatmentReq struct {
 	RouteName   string `p:"route_name"  v:"required#请输入路由名称:route_name"`
-	Param       string `p:"param"  v:"required#请输入投递及参数:param"`
+	Param       g.Map  `p:"param"  v:"required#请输入投递及参数:param"`
 	MainTraceId string `p:"main_trace_id"`
+	KeyMap      g.Map  `p:"key_map"`
 }
 
 type ConfirmReq struct {

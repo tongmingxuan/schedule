@@ -1,13 +1,14 @@
 package TaskLogic
 
 import (
+	"Schedule/internal/consts"
 	"Schedule/internal/dao"
 	"Schedule/internal/logic/BaseLogic"
 	"Schedule/internal/model/entity"
 	"context"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/util/guid"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 var (
@@ -35,29 +36,36 @@ func (logic TaskLogic) GetDao(ctx context.Context) *gdb.Model {
 	return dao.Task.Ctx(ctx)
 }
 
-// Pretreatment
-// @Description: 预处理创建路由
+// ConfirmSetName
+// @Description: confirm集合名称
+// @receiver logic
+// @param routeId
+// @return string
+func (logic TaskLogic) ConfirmSetName(routeId int) string {
+	return consts.ConfirmSetName + gconv.String(routeId)
+}
+
+// FinishSetName
+// @Description: finish集合名称
+// @receiver logic
+// @param routeId
+// @return string
+func (logic TaskLogic) FinishSetName(routeId int) string {
+	return consts.FinishSetName + gconv.String(routeId)
+}
+
+// CreateTask
+// @Description: 创建任务
 // @receiver logic
 // @param ctx
-// @param routeInfo
-// @param param
-// @param traceId
-func (logic TaskLogic) Pretreatment(ctx context.Context, routeInfo entity.Route, param string, traceId string) PretreatmentResp {
-
-	logic.LoggerInfo(ctx, "Pretreatment:接收数据:"+routeInfo.Name, g.Map{
-		"param":      param,
-		"trace_id":   traceId,
-		"route_info": routeInfo,
-	})
-
-	taskDao := logic.GetDao(ctx)
-
-	if traceId == "" {
-		traceId = guid.S()
-	}
-
+// @param routeInfo 路由信息
+// @param param 投递参数
+// @param traceId 任务ID
+// @param mainTraceId 主任务ID
+// @return PretreatmentResp
+func (logic TaskLogic) CreateTask(ctx context.Context, routeInfo entity.Route, param interface{}, traceId string, mainTraceId string) PretreatmentResp {
 	data := g.Map{
-		"main_trace_id": traceId,
+		"main_trace_id": mainTraceId,
 		"trace_id":      traceId,
 		"param":         param,
 		"status":        CONST_TASK_STATUS_0,
@@ -65,20 +73,45 @@ func (logic TaskLogic) Pretreatment(ctx context.Context, routeInfo entity.Route,
 		"push_url":      routeInfo.PushUrl,
 	}
 
-	insertId, err := taskDao.Insert(data)
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	logic.LoggerInfo(ctx, "Pretreatment:运行结束:"+routeInfo.Name, g.Map{
-		"insert_id":   insertId,
-		"insert_data": data,
-	})
-
 	return PretreatmentResp{
 		TraceId:   traceId,
 		RouteName: routeInfo.Name,
 		RouteId:   routeInfo.Id,
+		TaskId:    logic.Insert(logic.GetDao(ctx), data),
 	}
+}
+
+func (logic TaskLogic) Find(ctx context.Context, where interface{}) entity.Task {
+	var taskInfo entity.Task
+
+	result := logic.FindInfoByWhere(logic.GetDao(ctx), where)
+
+	if len(result.Map()) == 0 {
+		return taskInfo
+	}
+
+	err := result.Struct(&taskInfo)
+
+	if err != nil {
+		panic("taskLogic:find:error:" + err.Error())
+	}
+
+	return taskInfo
+}
+
+func (logic TaskLogic) Update(ctx context.Context, where interface{}, update interface{}) int {
+	return logic.UpdateByWhere(logic.GetDao(ctx), where, update)
+}
+
+// Confirm
+// @Description: 确认并投递
+// @receiver logic
+// @param ctx
+// @param taskInfo
+func (logic TaskLogic) Confirm(ctx context.Context, taskInfo entity.Task) {
+
+}
+
+func (logic TaskLogic) PushConfirmSortSet(ctx context.Context, taskInfo entity.Task) {
+
 }

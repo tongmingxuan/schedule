@@ -13,3 +13,9 @@ type ApiResponse struct {
 
 // ErrorApiCode api异常code
 const ErrorApiCode = 500
+
+// ConfirmSetName confirm集合名称
+const ConfirmSetName = "confirm:confirm_set_"
+
+// FinishSetName finish集合名称
+const FinishSetName = "finish:finish_set_"

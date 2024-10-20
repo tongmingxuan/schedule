@@ -53,3 +53,16 @@ func (logic RouteLogic) Find(ctx context.Context, where interface{}) entity.Rout
 func (logic RouteLogic) Update(ctx context.Context, where interface{}, update interface{}) int {
 	return logic.UpdateByWhere(logic.GetDao(ctx), where, update)
 }
+
+func (logic RouteLogic) GetList(ctx context.Context, where interface{}, field interface{}) []entity.Route {
+
+	list := logic.GetListByWhere(logic.GetDao(ctx), where, field)
+
+	var result []entity.Route
+
+	if err := list.Structs(&result); err != nil {
+		panic("转化异常")
+	}
+
+	return result
+}

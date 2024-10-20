@@ -8,8 +8,10 @@ type RouteCreateReq struct {
 	Concurrency int `p:"concurrency" default:"1"`
 	// 延时多长时间
 	Delay int `p:"delay"  default:"0"`
-	// 下级路由
-	NextId int `p:"next_id"  default:"0"`
+	// 上级路由
+	ParentId int `p:"parent_id" default:"0"`
+	// 主路由
+	MainId int `p:"main_id" default:"0"`
 }
 
 type RouteEditReq struct {

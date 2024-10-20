@@ -13,10 +13,11 @@ import (
 type Route struct {
 	g.Meta      `orm:"table:route, do:true"`
 	Id          interface{} //
+	MainId      interface{} // 主路由ID
 	Name        interface{} // 路由名称
 	Config      interface{} // 配置参数
 	PushUrl     interface{} // push地址
-	NextId      interface{} // finish后下级路由
+	ParentId    interface{} // 上级ID
 	Concurrency interface{} // 并发数量
 	Delay       interface{} // 延迟多少秒运行
 	CreatedAt   *gtime.Time //
