@@ -1,6 +1,7 @@
 package service
 
 import (
+	"Schedule/internal/common"
 	"Schedule/internal/consts"
 	"Schedule/internal/dao"
 	"Schedule/internal/logic/RouteLogic"
@@ -25,6 +26,12 @@ type TaskService struct {
 // @param keyMap 查询参数
 // @return interface{}
 func (service TaskService) Pretreatment(ctx context.Context, routeName string, param interface{}, keyMap g.Map) interface{} {
+	common.LoggerInfo(ctx, "pretreatment:接收导数据:"+routeName, g.Map{
+		"route_name": routeName,
+		"param":      param,
+		"key_map":    keyMap,
+	})
+
 	routeInfo := service.RouteLogic.Find(ctx, g.Map{
 		"name": routeName,
 	})
@@ -90,12 +97,37 @@ func (service TaskService) Pretreatment(ctx context.Context, routeName string, p
 		panic(err.Error())
 	}
 
+	common.LoggerInfo(ctx, "pretreatment:任务创建成功:"+routeName, g.Map{
+		"main":     pretreatmentResp,
+		"relation": routeTaskMap,
+	})
+
 	return g.Map{
 		"main":     pretreatmentResp,
 		"relation": routeTaskMap,
 	}
 }
 
+// Confirm
+// @Description: 确认并投递
+// @receiver service
+// @param ctx
+// @param traceId
+// @return interface{}
 func (service TaskService) Confirm(ctx context.Context, traceId string) interface{} {
+	common.LoggerInfo(ctx, "confirm接收导数据", g.Map{
+		"trace_id": traceId,
+	})
+
+	taskInfo := service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
+
+	if taskInfo.Id == 0 {
+		panic("任务不存在:trace_id:" + traceId)
+	}
+
+	if taskInfo.Status != 0 {
+		panic("任务状态不为待运行:trace_id:" + traceId)
+	}
+
 	return nil
 }
