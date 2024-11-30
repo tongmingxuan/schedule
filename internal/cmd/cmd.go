@@ -32,6 +32,9 @@ var (
 				group.ALL("route/create", schedule.Schedule{}.CreateRoute)
 				group.ALL("route/edit", schedule.Schedule{}.EditRoute)
 				group.ALL("task/pretreatment", schedule.Schedule{}.Pretreatment)
+				group.ALL("task/confirm", schedule.Schedule{}.Confirm)
+				group.ALL("task/finish", schedule.Schedule{}.Finish)
+
 			})
 
 			s.Run()

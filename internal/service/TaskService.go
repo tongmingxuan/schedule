@@ -3,7 +3,6 @@ package service
 import (
 	"Schedule/internal/common"
 	"Schedule/internal/consts"
-	"Schedule/internal/dao"
 	"Schedule/internal/logic/RouteLogic"
 	"Schedule/internal/logic/TaskLogic"
 	"context"
@@ -58,17 +57,7 @@ func (service TaskService) Pretreatment(ctx context.Context, routeName string, p
 		//主任务
 		pretreatmentResp = service.TaskLogic.CreateTask(ctx, routeInfo, param, traceId, traceId)
 
-		for key, value := range keyMap {
-			_, err := dao.Keymap.Ctx(ctx).Insert(g.Map{
-				"key":     key,
-				"value":   value,
-				"task_id": pretreatmentResp.TaskId,
-			})
-
-			if err != nil {
-				return err
-			}
-		}
+		service.TaskLogic.CreateKeyMap(ctx, keyMap, pretreatmentResp.TaskId)
 
 		routeTaskMap[routeInfo.Id] = pretreatmentResp.TaskId
 
@@ -119,15 +108,33 @@ func (service TaskService) Confirm(ctx context.Context, traceId string) interfac
 		"trace_id": traceId,
 	})
 
-	taskInfo := service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
+	taskLogic := service.TaskLogic
+
+	taskInfo := taskLogic.Find(ctx, g.Map{"trace_id": traceId})
 
 	if taskInfo.Id == 0 {
 		panic("任务不存在:trace_id:" + traceId)
 	}
 
-	if taskInfo.Status != 0 {
+	if taskInfo.Status != TaskLogic.ConstWaitingRun {
 		panic("任务状态不为待运行:trace_id:" + traceId)
 	}
 
-	return nil
+	if taskInfo.MainTraceId != taskInfo.TraceId {
+		panic("当前任务不为主任务:trace_id:" + traceId)
+	}
+
+	taskLogic.ToFinishSortedSet(ctx, taskInfo, nil)
+
+	common.LoggerInfo(ctx, "confirm投递finish集合成功", g.Map{
+		"trace_id": traceId,
+	})
+
+	return taskInfo
+}
+
+func (service TaskService) Finish(ctx context.Context, traceId string, keyMap, param g.Map) interface{} {
+	common.LoggerInfo(ctx, "Finish:接收到数据", g.Map{"trace_id": traceId, "param": param, "keyMap": keyMap})
+
+	return service.TaskLogic.Finish(ctx, traceId, keyMap, param)
 }

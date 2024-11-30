@@ -6,8 +6,8 @@ package entity
 
 // Keymap is the golang structure for table keymap.
 type Keymap struct {
-	Id     uint   `json:"id"      ` //
+	Id     uint64 `json:"id"      ` //
 	Key    string `json:"key"     ` // 字段
 	Value  string `json:"value"   ` // 字段value
-	TaskId int    `json:"task_id" ` // 任务ID
+	TaskId int64  `json:"task_id" ` // 任务ID
 }

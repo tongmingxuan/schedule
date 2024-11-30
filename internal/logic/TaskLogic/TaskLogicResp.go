@@ -8,3 +8,8 @@ type PretreatmentResp struct {
 	RouteId   int    `json:"route_id"`
 	TaskId    int    `json:"task_id"`
 }
+
+type FinishResp struct {
+	TraceId string `json:"trace_id"`
+	Message string `json:"message"`
+}

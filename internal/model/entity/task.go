@@ -11,6 +11,7 @@ import (
 // Task is the golang structure for table task.
 type Task struct {
 	Id          int         `json:"id"            ` // 运行次数
+	ParentId    int         `json:"parent_id"     ` // 上级任务ID
 	MainTraceId string      `json:"main_trace_id" ` // 主-跟踪ID
 	TraceId     string      `json:"trace_id"      ` // 跟踪ID
 	RouteId     int         `json:"route_id"      ` // 路由ID

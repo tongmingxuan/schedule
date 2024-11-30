@@ -2,6 +2,7 @@ package schedule
 
 import (
 	"Schedule/internal/common"
+	"Schedule/internal/consts"
 	"Schedule/internal/request"
 	"Schedule/internal/service"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -65,4 +66,18 @@ func (controller Schedule) Confirm(req *ghttp.Request) {
 	}
 
 	common.ApiResponse(req, service.TaskService{}.Confirm(req.GetCtx(), ConfirmReq.TraceId))
+}
+
+func (controller Schedule) Finish(req *ghttp.Request) {
+	finishReq := request.FinishReq{}
+
+	if err := req.Parse(&finishReq); err != nil {
+		req.SetError(err)
+
+		return
+	}
+
+	req.SetCtxVar(consts.CtxTraceId, finishReq.TraceId)
+
+	common.ApiResponse(req, service.TaskService{}.Finish(req.GetCtx(), finishReq.TraceId, finishReq.KeyMap, finishReq.Param))
 }

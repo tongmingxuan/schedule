@@ -21,6 +21,7 @@ type TaskDao struct {
 // TaskColumns defines and stores column names for table task.
 type TaskColumns struct {
 	Id          string // 运行次数
+	ParentId    string // 上级任务ID
 	MainTraceId string // 主-跟踪ID
 	TraceId     string // 跟踪ID
 	RouteId     string // 路由ID
@@ -37,6 +38,7 @@ type TaskColumns struct {
 // taskColumns holds the columns for table task.
 var taskColumns = TaskColumns{
 	Id:          "id",
+	ParentId:    "parent_id",
 	MainTraceId: "main_trace_id",
 	TraceId:     "trace_id",
 	RouteId:     "route_id",

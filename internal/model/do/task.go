@@ -13,6 +13,7 @@ import (
 type Task struct {
 	g.Meta      `orm:"table:task, do:true"`
 	Id          interface{} // 运行次数
+	ParentId    interface{} // 上级任务ID
 	MainTraceId interface{} // 主-跟踪ID
 	TraceId     interface{} // 跟踪ID
 	RouteId     interface{} // 路由ID
