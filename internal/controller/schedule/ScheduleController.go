@@ -81,3 +81,17 @@ func (controller Schedule) Finish(req *ghttp.Request) {
 
 	common.ApiResponse(req, service.TaskService{}.Finish(req.GetCtx(), finishReq.TraceId, finishReq.KeyMap, finishReq.Param))
 }
+
+func (controller Schedule) FindInfo(req *ghttp.Request) {
+	finishReq := request.FinishReq{}
+
+	if err := req.Parse(&finishReq); err != nil {
+		req.SetError(err)
+
+		return
+	}
+
+	req.SetCtxVar(consts.CtxTraceId, finishReq.TraceId)
+
+	common.ApiResponse(req, service.TaskService{}.FindInfo(req.GetCtx(), finishReq.TraceId))
+}

@@ -34,7 +34,7 @@ var (
 				group.ALL("task/pretreatment", schedule.Schedule{}.Pretreatment)
 				group.ALL("task/confirm", schedule.Schedule{}.Confirm)
 				group.ALL("task/finish", schedule.Schedule{}.Finish)
-
+				group.ALL("task/find", schedule.Schedule{}.FindInfo)
 			})
 
 			s.Run()

@@ -5,6 +5,7 @@ import (
 	"Schedule/internal/consts"
 	"Schedule/internal/logic/RouteLogic"
 	"Schedule/internal/logic/TaskLogic"
+	"Schedule/internal/model/entity"
 	"context"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
@@ -137,4 +138,8 @@ func (service TaskService) Finish(ctx context.Context, traceId string, keyMap, p
 	common.LoggerInfo(ctx, "Finish:接收到数据", g.Map{"trace_id": traceId, "param": param, "keyMap": keyMap})
 
 	return service.TaskLogic.Finish(ctx, traceId, keyMap, param)
+}
+
+func (service TaskService) FindInfo(ctx context.Context, traceId string) entity.Task {
+	return service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
 }
