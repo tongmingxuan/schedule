@@ -16,6 +16,7 @@ import (
 type TaskService struct {
 	RouteLogic RouteLogic.RouteLogic
 	TaskLogic  TaskLogic.TaskLogic
+	RedisLogic RedisLogic.Redis
 }
 
 // Pretreatment
@@ -138,32 +139,28 @@ func (service TaskService) Confirm(ctx context.Context, traceId string) interfac
 func (service TaskService) Finish(ctx context.Context, traceId string, keyMap, param g.Map) interface{} {
 	common.LoggerInfo(ctx, "Finish:接收到数据", g.Map{"trace_id": traceId, "param": param, "keyMap": keyMap})
 
-	redis := RedisLogic.Redis{}
-
 	lockValue := guid.S()
 
-	redis.Lock(traceId, lockValue, 5, 10)
+	service.RedisLogic.Lock(traceId, lockValue, 5, 10)
 
 	defer func() {
 		common.LoggerInfo(ctx, "删除锁成功", nil)
 
-		redis.ReleaseLock(traceId, lockValue)
+		service.RedisLogic.ReleaseLock(traceId, lockValue)
 	}()
 
 	return service.TaskLogic.Finish(ctx, traceId, keyMap, param)
 }
 
 func (service TaskService) FindInfo(ctx context.Context, traceId string) entity.Task {
-	redis := RedisLogic.Redis{}
-
 	lockValue := guid.S()
 
-	redis.Lock(traceId, lockValue, 5, 10)
+	service.RedisLogic.Lock(traceId, lockValue, 5, 10)
 
 	defer func() {
 		common.LoggerInfo(ctx, "删除锁成功", nil)
 
-		redis.ReleaseLock(traceId, lockValue)
+		service.RedisLogic.ReleaseLock(traceId, lockValue)
 	}()
 
 	return service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
