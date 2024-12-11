@@ -258,3 +258,7 @@ func (logic TaskLogic) ToFinishSortedSet(ctx context.Context, taskInfo entity.Ta
 	logic.Update(ctx, g.Map{"id": taskInfo.Id}, childUpdate)
 	logic.AddFinishSortedSet(ctx, taskInfo.RouteId, time.Now().Unix(), taskInfo.TraceId)
 }
+
+func (logic TaskLogic) LockName(traceId string) string {
+	return "lock_task_trace_id" + traceId
+}

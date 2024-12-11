@@ -5,6 +5,8 @@ import (
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/database/gredis"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+	"time"
 )
 
 func InitRedis(ctx context.Context) Redis {
@@ -38,6 +40,16 @@ func (r Redis) Set(key string, value string, connection ...string) *gvar.Var {
 	return set
 }
 
+func (r Redis) Get(key string, connection ...string) *gvar.Var {
+	get, err := r.RedisClient(connection...).Get(r.ctx, key)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return get
+}
+
 // AddSortedSet
 // @Description: 设置有序集合
 // @receiver r
@@ -60,4 +72,68 @@ func (r Redis) AddSortedSet(sortedSetKey string, score int64, member string, con
 	}
 
 	return add
+}
+
+// Lock
+// @Description: 获取redis锁
+// @receiver r
+// @param lockName 锁名称
+// @param lockValue 锁value
+// @param getLockTime 获取锁时间
+// @param ttl 锁过期时间
+// @param connection 链接名称
+func (r Redis) Lock(lockName string, lockValue string, getLockTime int, ttl int, connection ...string) bool {
+	startTime := time.Now()
+
+	for true {
+		nowTime := time.Now()
+
+		if int(nowTime.Sub(startTime).Seconds()) >= getLockTime {
+			panic("获取锁超时:" + lockName)
+		}
+
+		set, err := r.RedisClient(connection...).Set(r.ctx, lockName, lockValue, gredis.SetOption{
+			NX: true,
+			TTLOption: gredis.TTLOption{
+				EX: gconv.PtrInt64(ttl),
+			},
+		})
+
+		if set.String() == "OK" {
+			break
+		}
+
+		if err != nil {
+			panic("获取锁异常:" + lockName + ":" + err.Error())
+		}
+
+		time.Sleep(500 * time.Millisecond)
+
+		continue
+	}
+
+	return true
+}
+
+// ReleaseLock
+// @Description: 删除锁
+// @receiver r
+// @param lockName
+// @param lockValue
+// @param connection
+// @return int
+func (r Redis) ReleaseLock(lockName string, lockValue string, connection ...string) int {
+	res := r.Get(lockName)
+
+	if lockValue == res.String() {
+		del, err := r.RedisClient(connection...).Del(r.ctx, lockName)
+
+		if err != nil {
+			panic("删除锁异常:" + lockName)
+		}
+
+		return int(del)
+	}
+
+	return 0
 }
