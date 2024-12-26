@@ -7,6 +7,7 @@ type PretreatmentReq struct {
 	Param       g.Map  `p:"param"  v:"required#请输入投递及参数:param"`
 	MainTraceId string `p:"main_trace_id"`
 	KeyMap      g.Map  `p:"key_map"`
+	Delay       int    `p:"delay"`
 }
 
 type ConfirmReq struct {

@@ -20,6 +20,7 @@ type Task struct {
 	Result      string      `json:"result"        ` // 运行结果
 	Status      int         `json:"status"        ` // 运行状态  0待调度 1已投递 2已接收finish 3子任务生成成功  4运行成功  5运行异常  6作废
 	Count       int         `json:"count"         ` // 运行次数
+	Delay       int         `json:"delay"         ` // 延时运行
 	CreatedAt   *gtime.Time `json:"created_at"    ` //
 	UpdatedAt   *gtime.Time `json:"updated_at"    ` //
 	DeletedAt   *gtime.Time `json:"deleted_at"    ` //

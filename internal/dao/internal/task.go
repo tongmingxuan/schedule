@@ -30,6 +30,7 @@ type TaskColumns struct {
 	Result      string // 运行结果
 	Status      string // 运行状态  0待调度 1已投递 2已接收finish 3子任务生成成功  4运行成功  5运行异常  6作废
 	Count       string // 运行次数
+	Delay       string // 延时运行
 	CreatedAt   string //
 	UpdatedAt   string //
 	DeletedAt   string //
@@ -47,6 +48,7 @@ var taskColumns = TaskColumns{
 	Result:      "result",
 	Status:      "status",
 	Count:       "count",
+	Delay:       "delay",
 	CreatedAt:   "created_at",
 	UpdatedAt:   "updated_at",
 	DeletedAt:   "deleted_at",

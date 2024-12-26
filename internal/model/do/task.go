@@ -22,6 +22,7 @@ type Task struct {
 	Result      interface{} // 运行结果
 	Status      interface{} // 运行状态  0待调度 1已投递 2已接收finish 3子任务生成成功  4运行成功  5运行异常  6作废
 	Count       interface{} // 运行次数
+	Delay       interface{} // 延时运行
 	CreatedAt   *gtime.Time //
 	UpdatedAt   *gtime.Time //
 	DeletedAt   *gtime.Time //

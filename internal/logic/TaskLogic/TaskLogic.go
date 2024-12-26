@@ -66,7 +66,7 @@ func (logic TaskLogic) FinishSetName(routeId int) string {
 // @param traceId 任务ID
 // @param mainTraceId 主任务ID
 // @return PretreatmentResp
-func (logic TaskLogic) CreateTask(ctx context.Context, routeInfo entity.Route, param interface{}, traceId string, mainTraceId string) PretreatmentResp {
+func (logic TaskLogic) CreateTask(ctx context.Context, routeInfo entity.Route, param interface{}, traceId string, mainTraceId string, delay int) PretreatmentResp {
 	data := g.Map{
 		"main_trace_id": mainTraceId,
 		"trace_id":      traceId,
@@ -74,6 +74,7 @@ func (logic TaskLogic) CreateTask(ctx context.Context, routeInfo entity.Route, p
 		"status":        ConstWaitingRun,
 		"route_id":      routeInfo.Id,
 		"push_url":      routeInfo.PushUrl,
+		"delay":         delay,
 	}
 
 	return PretreatmentResp{
@@ -248,7 +249,14 @@ func (logic TaskLogic) ToFinishSortedSet(ctx context.Context, taskInfo entity.Ta
 	}
 
 	logic.Update(ctx, g.Map{"id": taskInfo.Id}, childUpdate)
-	logic.AddFinishSortedSet(ctx, taskInfo.RouteId, time.Now().Unix(), taskInfo.TraceId)
+
+	score := time.Now().Unix()
+
+	if taskInfo.Delay > 0 {
+		score = score + int64(taskInfo.Delay)
+	}
+	
+	logic.AddFinishSortedSet(ctx, taskInfo.RouteId, score, taskInfo.TraceId)
 }
 
 func (logic TaskLogic) LockName(traceId string) string {

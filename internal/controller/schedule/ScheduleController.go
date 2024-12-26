@@ -54,7 +54,7 @@ func (controller Schedule) Pretreatment(req *ghttp.Request) {
 		return
 	}
 
-	common.ApiResponse(req, service.TaskService{}.Pretreatment(req.GetCtx(), pretreatmentReq.RouteName, pretreatmentReq.Param, pretreatmentReq.KeyMap))
+	common.ApiResponse(req, service.TaskService{}.Pretreatment(req.GetCtx(), pretreatmentReq.RouteName, pretreatmentReq.Param, pretreatmentReq.KeyMap, pretreatmentReq.Delay))
 }
 
 func (controller Schedule) Confirm(req *ghttp.Request) {

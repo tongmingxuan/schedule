@@ -27,11 +27,12 @@ type TaskService struct {
 // @param param 投递参数
 // @param keyMap 查询参数
 // @return interface{}
-func (service TaskService) Pretreatment(ctx context.Context, routeName string, param interface{}, keyMap g.Map) interface{} {
+func (service TaskService) Pretreatment(ctx context.Context, routeName string, param interface{}, keyMap g.Map, delay int) interface{} {
 	common.LoggerInfo(ctx, "pretreatment:接收导数据:"+routeName, g.Map{
 		"route_name": routeName,
 		"param":      param,
 		"key_map":    keyMap,
+		"delay":      delay,
 	})
 
 	routeInfo := service.RouteLogic.Find(ctx, g.Map{
@@ -58,7 +59,7 @@ func (service TaskService) Pretreatment(ctx context.Context, routeName string, p
 
 	err := g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		//主任务
-		pretreatmentResp = service.TaskLogic.CreateTask(ctx, routeInfo, param, traceId, traceId)
+		pretreatmentResp = service.TaskLogic.CreateTask(ctx, routeInfo, param, traceId, traceId, delay)
 
 		service.TaskLogic.CreateKeyMap(ctx, keyMap, pretreatmentResp.TaskId)
 
@@ -75,7 +76,7 @@ func (service TaskService) Pretreatment(ctx context.Context, routeName string, p
 				panic("路由配置关系异常")
 			}
 
-			child := service.TaskLogic.CreateTask(ctx, route, nil, guid.S(), traceId)
+			child := service.TaskLogic.CreateTask(ctx, route, nil, guid.S(), traceId, 0)
 
 			service.TaskLogic.Update(ctx, g.Map{"id": child.TaskId}, g.Map{"parent_id": parentTaskId})
 
