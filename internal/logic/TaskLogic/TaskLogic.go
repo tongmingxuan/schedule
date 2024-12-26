@@ -172,6 +172,10 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 		panic("任务不存在:trace_id:" + traceId)
 	}
 
+	if taskInfo.Status == ConstRunSuccess {
+		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功:任务全部结束"}
+	}
+
 	if taskInfo.Status == ConstFinishSuccess {
 		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功"}
 	}
@@ -255,7 +259,7 @@ func (logic TaskLogic) ToFinishSortedSet(ctx context.Context, taskInfo entity.Ta
 	if taskInfo.Delay > 0 {
 		score = score + int64(taskInfo.Delay)
 	}
-	
+
 	logic.AddFinishSortedSet(ctx, taskInfo.RouteId, score, taskInfo.TraceId)
 }
 
