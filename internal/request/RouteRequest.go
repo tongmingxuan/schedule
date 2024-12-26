@@ -12,6 +12,10 @@ type RouteCreateReq struct {
 	ParentId int `p:"parent_id" default:"0"`
 	// 主路由
 	MainId int `p:"main_id" default:"0"`
+	// 一轮获取多少数据
+	Limit int `p:"limit" default:"10"`
+	// 一轮休息多少秒
+	Sleep int `p:"sleep" default:"10"`
 }
 
 type RouteEditReq struct {
