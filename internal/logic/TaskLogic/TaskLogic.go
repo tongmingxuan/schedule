@@ -1,12 +1,15 @@
 package TaskLogic
 
 import (
+	"Schedule/internal/common"
 	"Schedule/internal/consts"
 	"Schedule/internal/dao"
 	"Schedule/internal/logic/BaseLogic"
 	"Schedule/internal/logic/RedisLogic"
+	"Schedule/internal/logic/RequestLogic"
 	"Schedule/internal/model/entity"
 	"context"
+	"encoding/json"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -14,19 +17,6 @@ import (
 )
 
 var (
-	// CONST_TASK_STATUS_1 已投递
-	CONST_TASK_STATUS_1 = 1
-	// CONST_TASK_STATUS_2 已接收finish
-	CONST_TASK_STATUS_2 = 2
-	// CONST_TASK_STATUS_3 子任务生成成功
-	CONST_TASK_STATUS_3 = 3
-	// CONST_TASK_STATUS_4 运行成功
-	CONST_TASK_STATUS_4 = 4
-	// CONST_TASK_STATUS_5 运行异常
-	CONST_TASK_STATUS_5 = 5
-	// CONST_TASK_STATUS_6 作废
-	CONST_TASK_STATUS_6 = 6
-
 	// ConstWaitingRun 待运行
 	ConstWaitingRun = 0
 	// ConstAlreadyPushFinish 已投递finish集合
@@ -37,6 +27,8 @@ var (
 	ConstCancel = 3
 	// ConstRunSuccess 任务全部运行
 	ConstRunSuccess = 4
+	// ConstRunMaxRetry 到达最大运行次数
+	ConstRunMaxRetry = 5
 )
 
 type TaskLogic struct {
@@ -261,4 +253,88 @@ func (logic TaskLogic) ToFinishSortedSet(ctx context.Context, taskInfo entity.Ta
 
 func (logic TaskLogic) LockName(traceId string) string {
 	return "lock_task_trace_id" + traceId
+}
+
+// CallFinishApi
+// @Description: 推送Finish-Api
+// @receiver logic
+// @param traceId
+// @param routeInfo
+func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeInfo entity.Route) {
+
+	ctx = context.WithValue(ctx, consts.CtxTraceId, traceId)
+
+	prefix := "CallFinishApi:trace_id:" + traceId + ":route_name:" + routeInfo.Name + ":"
+
+	common.LoggerInfo(ctx, prefix+"接收到数据", g.Map{
+		"trace_id": traceId,
+		"route":    routeInfo,
+	})
+
+	defer func() {
+		if r := recover(); r != nil {
+			common.LoggerInfo(ctx, prefix+"发送异常:error", g.Map{
+				"error":    r,
+				"trace_id": traceId,
+			})
+
+			jsonData, jsonErr := json.Marshal(g.Map{"err": r})
+
+			errorString := ""
+
+			if jsonErr != nil {
+				errorString = "运行异常:捕获异常json失败:" + jsonErr.Error()
+			} else {
+				errorString = string(jsonData)
+			}
+
+			logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{
+				//"status": ConstRunMaxRetry,
+				"result": errorString,
+			})
+
+		}
+	}()
+
+	task := logic.Find(ctx, g.Map{"trace_id": traceId})
+
+	common.LoggerInfo(ctx, prefix+"查询任务信息", g.Map{"task": task})
+
+	if task.Status != ConstAlreadyPushFinish {
+		common.LoggerInfo(ctx, prefix+"任务状态不为待调用finish", nil)
+
+		RedisLogic.Redis{}.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
+
+		common.LoggerInfo(ctx, prefix+"在集合中删除该元素", nil)
+
+		return
+	}
+
+	runCount := task.Count + 1
+
+	if runCount > 10 {
+		common.LoggerInfo(ctx, prefix+"任务运行超过10次", nil)
+
+		logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"status": ConstRunMaxRetry})
+
+		RedisLogic.Redis{}.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
+
+		return
+	}
+
+	logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"count": runCount})
+
+	req := g.Map{
+		"main_trace_id": task.MainTraceId,
+		"trace_id":      task.TraceId,
+		"route_name":    routeInfo.Name,
+		"param":         task.Param,
+	}
+
+	common.LoggerInfo(ctx, prefix+"组织请求数据", req)
+
+	response := RequestLogic.Request{}.Post(ctx, task.PushUrl, req)
+
+	logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"result": response})
+
 }

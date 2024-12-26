@@ -30,8 +30,8 @@ func (r Redis) RedisClient(connection ...string) *gredis.Redis {
 	}
 }
 
-func (r Redis) Set(key string, value string, connection ...string) *gvar.Var {
-	set, err := r.RedisClient(connection...).Set(r.ctx, key, value)
+func (r Redis) Set(key string, value string, option gredis.SetOption, connection ...string) *gvar.Var {
+	set, err := r.RedisClient(connection...).Set(r.ctx, key, value, option)
 
 	if err != nil {
 		panic(err.Error())
@@ -136,4 +136,81 @@ func (r Redis) ReleaseLock(lockName string, lockValue string, connection ...stri
 	}
 
 	return 0
+}
+
+func (r Redis) Delete(name string, connection ...string) int {
+	del, err := r.RedisClient(connection...).Del(r.ctx, name)
+
+	if err != nil {
+		return -100
+	}
+
+	return int(del)
+}
+
+// GetSortedSetItem
+// @Description: 从有序集合中获取数据
+// @receiver r
+// @param sortedSetKey 集合名称
+// @param score	最大分值
+// @param limit 查询多少条
+// @param connection
+// @return []string
+// @return error
+func (r Redis) GetSortedSetItem(sortedSetKey string, score int64, limit int, connection ...string) []string {
+	do, err := r.RedisClient(connection...).Do(r.ctx,
+		"ZRANGEBYSCORE",
+		sortedSetKey,
+		0,
+		score,
+		"limit",
+		0,
+		limit,
+	)
+
+	if err != nil {
+		panic("获取集合数据异常")
+	}
+
+	result := make([]string, 0)
+
+	slice := do.Slice()
+
+	if len(slice) == 0 {
+		return result
+	}
+
+	for _, traceId := range slice {
+		id, ok := traceId.(string)
+
+		if !ok {
+			g.Dump("遍历集合断言失败:", g.Map{
+				"sortedSetKey": sortedSetKey,
+				"member":       traceId,
+			})
+
+			continue
+		}
+
+		result = append(result, id)
+	}
+
+	return result
+}
+
+// DeleteSortedMember
+// @Description: 删除集合中的元素
+// @receiver r
+// @param sortedSetKey
+// @param member
+// @param connection
+// @return int64
+func (r Redis) DeleteSortedMember(sortedSetKey string, member string, connection ...string) int64 {
+	rem, err := r.RedisClient(connection...).ZRem(r.ctx, sortedSetKey, member)
+
+	if err != nil {
+		panic("DeleteSortedMember:删除元素异常:" + err.Error())
+	}
+
+	return rem
 }

@@ -25,3 +25,11 @@ func LoggerError(ctx context.Context, message string, data map[string]interface{
 		consts.CtxTraceId: ctx.Value(consts.CtxTraceId),
 	})
 }
+
+func LoggerSystem(ctx context.Context, message string, data map[string]interface{}) {
+	g.Log("system").Info(ctx, g.Map{
+		"a-message": message,
+		"data":      data,
+		"time":      gtime.Datetime(),
+	})
+}

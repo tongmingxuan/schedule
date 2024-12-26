@@ -5,6 +5,7 @@ import (
 	"Schedule/internal/consts"
 	"Schedule/internal/request"
 	"Schedule/internal/service"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 )
 
@@ -94,4 +95,31 @@ func (controller Schedule) FindInfo(req *ghttp.Request) {
 	req.SetCtxVar(consts.CtxTraceId, finishReq.TraceId)
 
 	common.ApiResponse(req, service.TaskService{}.FindInfo(req.GetCtx(), finishReq.TraceId))
+}
+
+func (controller Schedule) Test(req *ghttp.Request) {
+
+	finishReq := request.TestReq{}
+
+	if err := req.Parse(&finishReq); err != nil {
+		req.SetError(err)
+
+		return
+	}
+	g.Dump("Test:api:接收到数据", finishReq)
+
+	param := finishReq.Param
+
+	param[finishReq.TraceId] = finishReq.TraceId
+
+	service.TaskService{}.Finish(req.GetCtx(),
+		finishReq.TraceId,
+		finishReq.KeyMap,
+		param,
+	)
+
+	common.ApiResponse(req, g.Map{
+		"trace_id": req.Get("trace_id"),
+		"yy":       "yy",
+	})
 }

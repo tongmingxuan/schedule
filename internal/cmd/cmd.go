@@ -1,15 +1,15 @@
 package cmd
 
 import (
+	"Schedule/internal/controller/hello"
 	"Schedule/internal/controller/schedule"
 	"Schedule/internal/middleware"
+	"Schedule/internal/service/Process"
+	"Schedule/internal/service/Timer"
 	"context"
-
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
-
-	"Schedule/internal/controller/hello"
 )
 
 var (
@@ -28,6 +28,7 @@ var (
 
 			s.Group("schedule/api", func(group *ghttp.RouterGroup) {
 				group.Middleware(middleware.TraceId, middleware.RequestLogger)
+				group.ALL("task/test", schedule.Schedule{}.Test)
 
 				group.ALL("route/create", schedule.Schedule{}.CreateRoute)
 				group.ALL("route/edit", schedule.Schedule{}.EditRoute)
@@ -36,6 +37,12 @@ var (
 				group.ALL("task/finish", schedule.Schedule{}.Finish)
 				group.ALL("task/find", schedule.Schedule{}.FindInfo)
 			})
+
+			go func() {
+				Process.Listen()
+			}()
+
+			Timer.Init(ctx)
 
 			s.Run()
 			return nil

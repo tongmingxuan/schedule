@@ -18,3 +18,10 @@ type FinishReq struct {
 	Param   g.Map  `p:"param"  `
 	KeyMap  g.Map  `p:"key_map"`
 }
+
+type TestReq struct {
+	TraceId     string `p:"trace_id"  v:"required#请输入跟踪ID:trace_id"`
+	MainTraceId string `p:"main_trace_id"  v:"required#请输入跟踪ID:trace_id"`
+	Param       g.Map  `p:"param"  `
+	KeyMap      g.Map  `p:"key_map"`
+}
