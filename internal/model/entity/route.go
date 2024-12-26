@@ -18,6 +18,8 @@ type Route struct {
 	ParentId    int         `json:"parent_id"   ` // 上级ID
 	Concurrency int         `json:"concurrency" ` // 并发数量
 	Delay       int         `json:"delay"       ` // 延迟多少秒运行
+	Sleep       int         `json:"sleep"       ` // 运行一轮休息时间
+	Limit       int         `json:"limit"       ` // 一轮获取多少数据
 	CreatedAt   *gtime.Time `json:"created_at"  ` //
 	UpdatedAt   *gtime.Time `json:"updated_at"  ` //
 	DeletedAt   *gtime.Time `json:"deleted_at"  ` //

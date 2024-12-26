@@ -20,6 +20,8 @@ type Route struct {
 	ParentId    interface{} // 上级ID
 	Concurrency interface{} // 并发数量
 	Delay       interface{} // 延迟多少秒运行
+	Sleep       interface{} // 运行一轮休息时间
+	Limit       interface{} // 一轮获取多少数据
 	CreatedAt   *gtime.Time //
 	UpdatedAt   *gtime.Time //
 	DeletedAt   *gtime.Time //

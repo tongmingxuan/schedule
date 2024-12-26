@@ -222,7 +222,7 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 		//}()
 
 		// 从集合中获取数据
-		list := redis.GetSortedSetItem(sortedSetName, time.Now().Unix(), 100)
+		list := redis.GetSortedSetItem(sortedSetName, time.Now().Unix(), routeInfo.Limit)
 
 		if len(list) == 0 {
 			time.Sleep(5 * time.Second)
@@ -232,10 +232,10 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 
 		for _, traceId := range list {
 			TaskLogic.TaskLogic{}.CallFinishApi(ctx, traceId, routeInfo)
-			time.Sleep(10 * time.Second)
-
 		}
-	}
 
-	// todo 增加从集合中取出多少条 如果取出数据sleep多少秒 开启下一次循环
+		sleep := time.Duration(routeInfo.Sleep) * time.Second
+
+		time.Sleep(sleep)
+	}
 }

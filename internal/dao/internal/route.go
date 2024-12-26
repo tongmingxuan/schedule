@@ -28,6 +28,8 @@ type RouteColumns struct {
 	ParentId    string // 上级ID
 	Concurrency string // 并发数量
 	Delay       string // 延迟多少秒运行
+	Sleep       string // 运行一轮休息时间
+	Limit       string // 一轮获取多少数据
 	CreatedAt   string //
 	UpdatedAt   string //
 	DeletedAt   string //
@@ -43,6 +45,8 @@ var routeColumns = RouteColumns{
 	ParentId:    "parent_id",
 	Concurrency: "concurrency",
 	Delay:       "delay",
+	Sleep:       "sleep",
+	Limit:       "limit",
 	CreatedAt:   "created_at",
 	UpdatedAt:   "updated_at",
 	DeletedAt:   "deleted_at",

@@ -20,18 +20,20 @@ type KeymapDao struct {
 
 // KeymapColumns defines and stores column names for table keymap.
 type KeymapColumns struct {
-	Id     string //
-	Key    string // 字段
-	Value  string // 字段value
-	TaskId string // 任务ID
+	Id        string //
+	Key       string // 字段
+	Value     string // 字段value
+	TaskId    string // 任务ID
+	CreatedAt string //
 }
 
 // keymapColumns holds the columns for table keymap.
 var keymapColumns = KeymapColumns{
-	Id:     "id",
-	Key:    "key",
-	Value:  "value",
-	TaskId: "task_id",
+	Id:        "id",
+	Key:       "key",
+	Value:     "value",
+	TaskId:    "task_id",
+	CreatedAt: "created_at",
 }
 
 // NewKeymapDao creates and returns a new DAO object for table data access.
