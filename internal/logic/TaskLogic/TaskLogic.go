@@ -29,6 +29,8 @@ var (
 	ConstRunSuccess = 4
 	// ConstRunMaxRetry 到达最大运行次数
 	ConstRunMaxRetry = 5
+	// ConstRunningError 任务存在异常
+	ConstRunningError = 6
 )
 
 type TaskLogic struct {
@@ -168,9 +170,17 @@ func (logic TaskLogic) CreateKeyMap(ctx context.Context, keyMap g.Map, taskId in
 func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map, param g.Map) FinishResp {
 	taskInfo := logic.Find(ctx, g.Map{"trace_id": traceId})
 
-	if taskInfo.Id == 0 {
-		panic("任务不存在:trace_id:" + traceId)
-	}
+	defer func() {
+		if r := recover(); r != nil {
+			common.LoggerInfo(ctx, "finish:出现异常:trace_id:"+traceId, g.Map{"error": r})
+
+			logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"status": ConstRunningError, "result": r})
+
+			panic(r)
+		}
+
+		common.LoggerInfo(ctx, "finish:运行结束:trace_id:"+traceId, nil)
+	}()
 
 	if taskInfo.Status == ConstRunSuccess {
 		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功:任务全部结束"}
@@ -178,10 +188,6 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 
 	if taskInfo.Status == ConstFinishSuccess {
 		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功"}
-	}
-
-	if taskInfo.Status != ConstAlreadyPushFinish {
-		panic("任务状态不为已投递finish集合:trace_id:" + traceId)
 	}
 
 	err := g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
@@ -283,6 +289,8 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 		"route":    routeInfo,
 	})
 
+	redis := RedisLogic.InitRedis(ctx)
+
 	defer func() {
 		if r := recover(); r != nil {
 			common.LoggerInfo(ctx, prefix+"发送异常:error", g.Map{
@@ -301,7 +309,7 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 			}
 
 			logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{
-				//"status": ConstRunMaxRetry,
+				"status": ConstRunningError,
 				"result": errorString,
 			})
 
@@ -312,10 +320,33 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 
 	common.LoggerInfo(ctx, prefix+"查询任务信息", g.Map{"task": task})
 
-	if task.Status != ConstAlreadyPushFinish {
-		common.LoggerInfo(ctx, prefix+"任务状态不为待调用finish", nil)
+	//  finish调用成功
+	if task.Status == ConstFinishSuccess {
+		common.LoggerInfo(ctx, prefix+"任务已经调用finish成功", nil)
 
-		RedisLogic.Redis{}.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
+		redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
+
+		common.LoggerInfo(ctx, prefix+"在集合中删除该元素", nil)
+
+		return
+	}
+
+	//  全部任务运行成功
+	if task.Status == ConstRunSuccess {
+		common.LoggerInfo(ctx, prefix+"任务已经任务全部运行成功", nil)
+
+		redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
+
+		common.LoggerInfo(ctx, prefix+"在集合中删除该元素", nil)
+
+		return
+	}
+
+	//  任务作废
+	if task.Status == ConstRunMaxRetry {
+		common.LoggerInfo(ctx, prefix+"任务已经作废", nil)
+
+		redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
 
 		common.LoggerInfo(ctx, prefix+"在集合中删除该元素", nil)
 
@@ -329,7 +360,8 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 
 		logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"status": ConstRunMaxRetry})
 
-		RedisLogic.Redis{}.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
+		//RedisLogic.Redis{}.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
+		redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
 
 		return
 	}

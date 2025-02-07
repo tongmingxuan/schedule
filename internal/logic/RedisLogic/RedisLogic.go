@@ -14,7 +14,8 @@ func InitRedis(ctx context.Context) Redis {
 }
 
 type Redis struct {
-	ctx context.Context
+	ctx       context.Context
+	RedisConn *gredis.Redis
 }
 
 // RedisClient
@@ -26,7 +27,9 @@ func (r Redis) RedisClient(connection ...string) *gredis.Redis {
 	if len(connection) > 0 {
 		return g.Redis(connection[0])
 	} else {
-		return g.Redis("default")
+		r.RedisConn = g.Redis("default")
+		//return g.Redis("default")
+		return r.RedisConn
 	}
 }
 
@@ -129,7 +132,7 @@ func (r Redis) ReleaseLock(lockName string, lockValue string, connection ...stri
 		del, err := r.RedisClient(connection...).Del(r.ctx, lockName)
 
 		if err != nil {
-			panic("删除锁异常:" + lockName)
+			panic("删除锁异常:" + lockName + ":" + err.Error())
 		}
 
 		return int(del)

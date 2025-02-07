@@ -142,13 +142,27 @@ func (service TaskService) Finish(ctx context.Context, traceId string, keyMap, p
 
 	lockValue := guid.S()
 
-	service.RedisLogic.Lock(traceId, lockValue, 5, 10)
+	redis := RedisLogic.InitRedis(ctx)
 
 	defer func() {
-		common.LoggerInfo(ctx, "删除锁成功", nil)
-
-		service.RedisLogic.ReleaseLock(traceId, lockValue)
+		redis.ReleaseLock(traceId, lockValue)
 	}()
+
+	redis.Lock(traceId, lockValue, 5, 10)
+
+	taskInfo := service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
+
+	if taskInfo.Id == 0 {
+		panic("任务不存在:trace_id:" + traceId)
+	}
+
+	if taskInfo.Status == TaskLogic.ConstCancel {
+		panic("当前任务已作废:trace_id:" + traceId)
+	}
+
+	if taskInfo.Status == TaskLogic.ConstRunMaxRetry {
+		panic("当前任务已到达最大运行次数:trace_id:" + traceId)
+	}
 
 	return service.TaskLogic.Finish(ctx, traceId, keyMap, param)
 }

@@ -193,7 +193,7 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 		}
 	}()
 
-	redis := RedisLogic.Redis{}
+	redis := RedisLogic.InitRedis(ctx)
 
 	sortedSetName := TaskLogic.TaskLogic{}.FinishSetName(routeInfo.Id)
 
