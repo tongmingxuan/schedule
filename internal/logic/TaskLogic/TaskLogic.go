@@ -13,6 +13,7 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gogf/gf/v2/util/guid"
 	"time"
 )
 
@@ -168,19 +169,45 @@ func (logic TaskLogic) CreateKeyMap(ctx context.Context, keyMap g.Map, taskId in
 // @param param   finish传递的参数 写入到子任务的param中投递子任务消息时携带这个param
 // @return FinishResp
 func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map, param g.Map) FinishResp {
+	lockValue := guid.S()
+
+	//todo 并发finish存在问题
+
+	redis := RedisLogic.InitRedis(ctx)
+
+	defer func() {
+		redis.ReleaseLock(traceId, lockValue)
+	}()
+
+	redis.Lock(traceId, lockValue, 10, 10)
+
 	taskInfo := logic.Find(ctx, g.Map{"trace_id": traceId})
 
 	defer func() {
 		if r := recover(); r != nil {
 			common.LoggerInfo(ctx, "finish:出现异常:trace_id:"+traceId, g.Map{"error": r})
 
-			logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"status": ConstRunningError, "result": r})
+			if traceId != "" && taskInfo.Status != ConstCancel && taskInfo.Status != ConstRunMaxRetry {
+				logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"status": ConstRunningError, "result": r})
+			}
 
 			panic(r)
 		}
 
 		common.LoggerInfo(ctx, "finish:运行结束:trace_id:"+traceId, nil)
 	}()
+
+	if taskInfo.Id == 0 {
+		panic("任务不存在:trace_id:" + traceId)
+	}
+
+	if taskInfo.Status == ConstCancel {
+		panic("当前任务已作废:trace_id:" + traceId)
+	}
+
+	if taskInfo.Status == ConstRunMaxRetry {
+		panic("当前任务已到达最大运行次数:trace_id:" + traceId)
+	}
 
 	if taskInfo.Status == ConstRunSuccess {
 		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功:任务全部结束"}

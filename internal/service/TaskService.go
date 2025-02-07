@@ -140,29 +140,29 @@ func (service TaskService) Confirm(ctx context.Context, traceId string) interfac
 func (service TaskService) Finish(ctx context.Context, traceId string, keyMap, param g.Map) interface{} {
 	common.LoggerInfo(ctx, "Finish:接收到数据", g.Map{"trace_id": traceId, "param": param, "keyMap": keyMap})
 
-	lockValue := guid.S()
-
-	redis := RedisLogic.InitRedis(ctx)
-
-	defer func() {
-		redis.ReleaseLock(traceId, lockValue)
-	}()
-
-	redis.Lock(traceId, lockValue, 5, 10)
-
-	taskInfo := service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
-
-	if taskInfo.Id == 0 {
-		panic("任务不存在:trace_id:" + traceId)
-	}
-
-	if taskInfo.Status == TaskLogic.ConstCancel {
-		panic("当前任务已作废:trace_id:" + traceId)
-	}
-
-	if taskInfo.Status == TaskLogic.ConstRunMaxRetry {
-		panic("当前任务已到达最大运行次数:trace_id:" + traceId)
-	}
+	//lockValue := guid.S()
+	//
+	//redis := RedisLogic.InitRedis(ctx)
+	//
+	//defer func() {
+	//	redis.ReleaseLock(traceId, lockValue)
+	//}()
+	//
+	//redis.Lock(traceId, lockValue, 10, 10)
+	//
+	//taskInfo := service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
+	//
+	//if taskInfo.Id == 0 {
+	//	panic("任务不存在:trace_id:" + traceId)
+	//}
+	//
+	//if taskInfo.Status == TaskLogic.ConstCancel {
+	//	panic("当前任务已作废:trace_id:" + traceId)
+	//}
+	//
+	//if taskInfo.Status == TaskLogic.ConstRunMaxRetry {
+	//	panic("当前任务已到达最大运行次数:trace_id:" + traceId)
+	//}
 
 	return service.TaskLogic.Finish(ctx, traceId, keyMap, param)
 }

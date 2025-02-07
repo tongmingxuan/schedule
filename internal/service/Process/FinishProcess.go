@@ -211,16 +211,6 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 			break
 		}
 
-		//defer func() {
-		//	if r := recover(); r != nil {
-		//		common.LoggerInfo(ctx, "Process:route_name:"+routeInfo.Name+":读取集合异常:error", g.Map{
-		//			"error": r,
-		//		})
-		//	}
-		//
-		//	time.Sleep(5 * time.Second)
-		//}()
-
 		// 从集合中获取数据
 		list := redis.GetSortedSetItem(sortedSetName, time.Now().Unix(), routeInfo.Limit)
 
@@ -231,7 +221,29 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 		}
 
 		for _, traceId := range list {
-			TaskLogic.TaskLogic{}.CallFinishApi(ctx, traceId, routeInfo)
+			go func(ctx context.Context, traceId string, routeInfo entity.Route) {
+				defer func() {
+					if r := recover(); r != nil {
+						common.LoggerSystem(ctx, "trace_id:"+traceId+":调用finish-api异常", g.Map{
+							"error": r,
+						})
+					}
+				}()
+
+				redisLogic := RedisLogic.InitRedis(ctx)
+
+				lockName := "call-finish-lock-" + traceId
+
+				lockValue := guid.S()
+
+				defer func() {
+					redisLogic.ReleaseLock(lockName, lockValue)
+				}()
+
+				redisLogic.Lock(lockName, lockValue, 5, 10)
+
+				TaskLogic.TaskLogic{}.CallFinishApi(ctx, traceId, routeInfo)
+			}(ctx, traceId, routeInfo)
 		}
 
 		sleep := time.Duration(routeInfo.Sleep) * time.Second
