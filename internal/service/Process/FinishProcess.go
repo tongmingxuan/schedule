@@ -240,7 +240,7 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 					redisLogic.ReleaseLock(lockName, lockValue)
 				}()
 
-				redisLogic.Lock(lockName, lockValue, 5, 10)
+				redisLogic.Lock(lockName, lockValue, 5, 15)
 
 				TaskLogic.TaskLogic{}.CallFinishApi(ctx, traceId, routeInfo)
 			}(ctx, traceId, routeInfo)

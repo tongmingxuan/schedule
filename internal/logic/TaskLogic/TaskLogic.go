@@ -179,7 +179,7 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 		redis.ReleaseLock(traceId, lockValue)
 	}()
 
-	redis.Lock(traceId, lockValue, 10, 10)
+	redis.Lock(traceId, lockValue, 8, 15)
 
 	taskInfo := logic.Find(ctx, g.Map{"trace_id": traceId})
 

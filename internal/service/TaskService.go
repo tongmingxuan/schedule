@@ -170,7 +170,7 @@ func (service TaskService) Finish(ctx context.Context, traceId string, keyMap, p
 func (service TaskService) FindInfo(ctx context.Context, traceId string) entity.Task {
 	lockValue := guid.S()
 
-	service.RedisLogic.Lock(traceId, lockValue, 5, 10)
+	service.RedisLogic.Lock(traceId, lockValue, 5, 15)
 
 	defer func() {
 		common.LoggerInfo(ctx, "删除锁成功", nil)
