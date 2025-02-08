@@ -171,8 +171,6 @@ func (logic TaskLogic) CreateKeyMap(ctx context.Context, keyMap g.Map, taskId in
 func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map, param g.Map) FinishResp {
 	lockValue := guid.S()
 
-	//todo 并发finish存在问题
-
 	redis := RedisLogic.InitRedis(ctx)
 
 	defer func() {
@@ -386,6 +384,8 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 		common.LoggerInfo(ctx, prefix+"任务运行超过10次", nil)
 
 		logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"status": ConstRunMaxRetry})
+
+		//todo 假如子任务超过运行次数则修改主任务超时
 
 		//RedisLogic.Redis{}.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
 		redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
