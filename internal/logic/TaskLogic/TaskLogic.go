@@ -181,6 +181,8 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 
 	taskInfo := logic.Find(ctx, g.Map{"trace_id": traceId})
 
+	common.LoggerInfo(ctx, "finish:查询task数据:trace_id:"+traceId, taskInfo)
+
 	defer func() {
 		if r := recover(); r != nil {
 			common.LoggerInfo(ctx, "finish:出现异常:trace_id:"+traceId, g.Map{"error": r})
@@ -233,6 +235,11 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 			"main_trace_id": taskInfo.MainTraceId,
 			"status !=":     ConstCancel,
 			"status":        ConstFinishSuccess,
+		})
+
+		common.LoggerInfo(ctx, "finish:获取数量:trace_id:"+traceId, g.Map{
+			"total_count":   totalCount,
+			"success_count": successCount,
 		})
 
 		if err != nil {
@@ -393,8 +400,6 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 		return
 	}
 
-	logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"count": runCount})
-
 	req := g.Map{
 		"main_trace_id": task.MainTraceId,
 		"trace_id":      task.TraceId,
@@ -403,6 +408,14 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 	}
 
 	common.LoggerInfo(ctx, prefix+"组织请求数据", req)
+
+	jsonReq, jsonErr := json.Marshal(req)
+
+	if jsonErr != nil {
+		panic("json请求参数异常:" + jsonErr.Error())
+	}
+
+	logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"count": runCount, "request_param": jsonReq})
 
 	response := RequestLogic.Request{}.Post(ctx, task.PushUrl, req)
 

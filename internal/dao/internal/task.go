@@ -20,38 +20,40 @@ type TaskDao struct {
 
 // TaskColumns defines and stores column names for table task.
 type TaskColumns struct {
-	Id          string // 运行次数
-	ParentId    string // 上级任务ID
-	MainTraceId string // 主-跟踪ID
-	TraceId     string // 跟踪ID
-	RouteId     string // 路由ID
-	PushUrl     string // 推送地址
-	Param       string // 初始参数
-	Result      string // 运行结果
-	Status      string // 运行状态  0待调度 1已投递 2已接收finish 3子任务生成成功  4运行成功  5运行异常  6作废
-	Count       string // 运行次数
-	Delay       string // 延时运行
-	CreatedAt   string //
-	UpdatedAt   string //
-	DeletedAt   string //
+	Id           string // 运行次数
+	ParentId     string // 上级任务ID
+	MainTraceId  string // 主-跟踪ID
+	TraceId      string // 跟踪ID
+	RouteId      string // 路由ID
+	PushUrl      string // 推送地址
+	Param        string // 初始参数
+	RequestParam string // 调用Finish-api传递参数
+	Result       string // 运行结果
+	Status       string // 运行状态  0待调度 1已投递 2已接收finish 3子任务生成成功  4运行成功  5运行异常  6作废
+	Count        string // 运行次数
+	Delay        string // 延时运行
+	CreatedAt    string //
+	UpdatedAt    string //
+	DeletedAt    string //
 }
 
 // taskColumns holds the columns for table task.
 var taskColumns = TaskColumns{
-	Id:          "id",
-	ParentId:    "parent_id",
-	MainTraceId: "main_trace_id",
-	TraceId:     "trace_id",
-	RouteId:     "route_id",
-	PushUrl:     "push_url",
-	Param:       "param",
-	Result:      "result",
-	Status:      "status",
-	Count:       "count",
-	Delay:       "delay",
-	CreatedAt:   "created_at",
-	UpdatedAt:   "updated_at",
-	DeletedAt:   "deleted_at",
+	Id:           "id",
+	ParentId:     "parent_id",
+	MainTraceId:  "main_trace_id",
+	TraceId:      "trace_id",
+	RouteId:      "route_id",
+	PushUrl:      "push_url",
+	Param:        "param",
+	RequestParam: "request_param",
+	Result:       "result",
+	Status:       "status",
+	Count:        "count",
+	Delay:        "delay",
+	CreatedAt:    "created_at",
+	UpdatedAt:    "updated_at",
+	DeletedAt:    "deleted_at",
 }
 
 // NewTaskDao creates and returns a new DAO object for table data access.

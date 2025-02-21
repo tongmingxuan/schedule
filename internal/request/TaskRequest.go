@@ -25,4 +25,5 @@ type TestReq struct {
 	MainTraceId string `p:"main_trace_id"  v:"required#请输入跟踪ID:trace_id"`
 	Param       g.Map  `p:"param"  `
 	KeyMap      g.Map  `p:"key_map"`
+	RouteName   string `p:"route_name"`
 }

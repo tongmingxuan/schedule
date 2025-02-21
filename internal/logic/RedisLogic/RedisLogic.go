@@ -217,3 +217,19 @@ func (r Redis) DeleteSortedMember(sortedSetKey string, member string, connection
 
 	return rem
 }
+
+// GetSortedSetCount
+// @Description:
+// @receiver r
+// @param sortedSetKey
+// @param connection
+// @return int
+func (r Redis) GetSortedSetCount(sortedSetKey string, connection ...string) int {
+	count, err := r.RedisClient(connection...).ZCard(r.ctx, sortedSetKey)
+
+	if err != nil {
+		panic("GetSortedSetCount:获取元素异常:" + err.Error())
+	}
+
+	return int(count)
+}

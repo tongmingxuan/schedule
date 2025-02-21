@@ -211,8 +211,6 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 			break
 		}
 
-		//判断如果子任务集合任务数量超过 路由limit * 2的数量 则不消费
-
 		// 从集合中获取数据
 		list := redis.GetSortedSetItem(sortedSetName, time.Now().Unix(), routeInfo.Limit)
 
