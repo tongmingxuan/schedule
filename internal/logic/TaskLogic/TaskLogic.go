@@ -181,6 +181,14 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 
 	taskInfo := logic.Find(ctx, g.Map{"trace_id": traceId})
 
+	if taskInfo.ParentId != 0 {
+		redis.Lock(taskInfo.MainTraceId, lockValue, 8, 15)
+
+		defer func() {
+			redis.ReleaseLock(taskInfo.MainTraceId, lockValue)
+		}()
+	}
+
 	common.LoggerInfo(ctx, "finish:查询task数据:trace_id:"+traceId, taskInfo)
 
 	defer func() {
@@ -210,11 +218,15 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 	}
 
 	if taskInfo.Status == ConstRunSuccess {
-		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功:任务全部结束"}
+		redis.DeleteSortedMember(logic.FinishSetName(taskInfo.RouteId), traceId)
+
+		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功:任务全部结束:" + traceId}
 	}
 
 	if taskInfo.Status == ConstFinishSuccess {
-		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功"}
+		redis.DeleteSortedMember(logic.FinishSetName(taskInfo.RouteId), traceId)
+
+		return FinishResp{TraceId: traceId, Message: "幂等:已finish成功:" + traceId}
 	}
 
 	err := g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
@@ -234,7 +246,7 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 		successCount, err := logic.GetDao(ctx).Count(g.Map{
 			"main_trace_id": taskInfo.MainTraceId,
 			"status !=":     ConstCancel,
-			"status":        ConstFinishSuccess,
+			"status":        []int{ConstRunSuccess, ConstFinishSuccess},
 		})
 
 		common.LoggerInfo(ctx, "finish:获取数量:trace_id:"+traceId, g.Map{
@@ -251,6 +263,10 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 				"status": ConstRunSuccess,
 			})
 
+			redis.DeleteSortedMember(logic.FinishSetName(taskInfo.RouteId), traceId)
+
+			common.LoggerInfo(ctx, "finish:任务运行全部结束:trace_id:"+traceId, nil)
+
 			return nil
 		}
 
@@ -264,6 +280,8 @@ func (logic TaskLogic) Finish(ctx context.Context, traceId string, keyMap g.Map,
 				logic.ToFinishSortedSet(ctx, childTask, param)
 			}
 		}
+
+		redis.DeleteSortedMember(logic.FinishSetName(taskInfo.RouteId), traceId)
 
 		return nil
 	})
@@ -350,10 +368,14 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 
 	task := logic.Find(ctx, g.Map{"trace_id": traceId})
 
-	common.LoggerInfo(ctx, prefix+"查询任务信息", g.Map{"task": task})
+	runCount := task.Count + 1
+
+	logic.AddFinishSortedSet(ctx, task.RouteId, time.Now().Unix()+int64(routeInfo.Delay*routeInfo.Limit*runCount), traceId)
+
+	common.LoggerInfo(ctx, prefix+"查询任务信息:重置时间", g.Map{"task": task})
 
 	//  finish调用成功
-	if task.Status == ConstFinishSuccess {
+	if task.Status == ConstFinishSuccess && task.ParentId == 0 {
 		common.LoggerInfo(ctx, prefix+"任务已经调用finish成功", nil)
 
 		redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
@@ -363,16 +385,16 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 		return
 	}
 
-	//  全部任务运行成功
-	if task.Status == ConstRunSuccess {
-		common.LoggerInfo(ctx, prefix+"任务已经任务全部运行成功", nil)
-
-		redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
-
-		common.LoggerInfo(ctx, prefix+"在集合中删除该元素", nil)
-
-		return
-	}
+	////  全部任务运行成功
+	//if task.Status == ConstRunSuccess {
+	//	common.LoggerInfo(ctx, prefix+"任务已经任务全部运行成功", nil)
+	//
+	//	redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
+	//
+	//	common.LoggerInfo(ctx, prefix+"在集合中删除该元素", nil)
+	//
+	//	return
+	//}
 
 	//  任务作废
 	if task.Status == ConstRunMaxRetry {
@@ -385,7 +407,7 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 		return
 	}
 
-	runCount := task.Count + 1
+	//runCount := task.Count + 1
 
 	if runCount > 10 {
 		common.LoggerInfo(ctx, prefix+"任务运行超过10次", nil)
@@ -421,4 +443,5 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 
 	logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"result": response})
 
+	//logic.AddFinishSortedSet(ctx, task.RouteId, time.Now().Unix(), traceId)
 }

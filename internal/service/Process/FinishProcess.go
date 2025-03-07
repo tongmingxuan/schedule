@@ -197,7 +197,7 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 
 	sortedSetName := TaskLogic.TaskLogic{}.FinishSetName(routeInfo.Id)
 
-	common.LoggerSystem(ctx, routeInfo.Name+":finish:Process开始运行", g.Map{
+	common.LoggerInfo(ctx, routeInfo.Name+":finish:Process开始运行", g.Map{
 		"number":     number,
 		"sorted_set": sortedSetName,
 	})
@@ -224,7 +224,7 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 			go func(ctx context.Context, traceId string, routeInfo entity.Route) {
 				defer func() {
 					if r := recover(); r != nil {
-						common.LoggerSystem(ctx, "trace_id:"+traceId+":调用finish-api异常", g.Map{
+						common.LoggerInfo(ctx, "trace_id:"+traceId+":调用finish-api异常", g.Map{
 							"error": r,
 						})
 					}
@@ -233,6 +233,8 @@ func Process(ctx context.Context, routeInfo entity.Route, number int) {
 				redisLogic := RedisLogic.InitRedis(ctx)
 
 				lockName := "call-finish-lock-" + traceId
+
+				//lockName := traceId
 
 				lockValue := guid.S()
 

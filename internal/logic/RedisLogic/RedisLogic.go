@@ -233,3 +233,20 @@ func (r Redis) GetSortedSetCount(sortedSetKey string, connection ...string) int 
 
 	return int(count)
 }
+
+// LPushList
+// @Description: LPush
+// @receiver r
+// @param listName
+// @param listItem
+// @param connection
+// @return int
+func (r Redis) LPushList(listName string, listItem interface{}, connection ...string) int {
+	push, err := r.RedisClient(connection...).LPush(r.ctx, listName, listItem)
+
+	if err != nil {
+		panic("LPushList:获取元素异常:" + err.Error())
+	}
+
+	return int(push)
+}
