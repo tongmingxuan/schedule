@@ -36,6 +36,8 @@ var (
 				group.ALL("task/confirm", schedule.Schedule{}.Confirm)
 				group.ALL("task/finish", schedule.Schedule{}.Finish)
 				group.ALL("task/find", schedule.Schedule{}.FindInfo)
+				group.ALL("task/retry", schedule.Schedule{}.Retry)
+
 			})
 
 			go func() {

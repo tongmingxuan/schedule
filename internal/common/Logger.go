@@ -33,3 +33,7 @@ func LoggerSystem(ctx context.Context, message string, data map[string]interface
 		"time":      gtime.Datetime(),
 	})
 }
+
+func Stack() string {
+	return g.Log("info").GetStack()
+}

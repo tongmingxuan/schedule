@@ -346,6 +346,7 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 			common.LoggerInfo(ctx, prefix+"发送异常:error", g.Map{
 				"error":    r,
 				"trace_id": traceId,
+				"trace":    common.Stack(),
 			})
 
 			jsonData, jsonErr := json.Marshal(g.Map{"err": r})
@@ -370,9 +371,11 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 
 	runCount := task.Count + 1
 
-	logic.AddFinishSortedSet(ctx, task.RouteId, time.Now().Unix()+int64(routeInfo.Delay*routeInfo.Limit*runCount), traceId)
+	score := time.Now().Unix() + int64(routeInfo.Delay*routeInfo.Limit*runCount) + 30
 
-	common.LoggerInfo(ctx, prefix+"查询任务信息:重置时间", g.Map{"task": task})
+	logic.AddFinishSortedSet(ctx, task.RouteId, score, traceId)
+
+	common.LoggerInfo(ctx, prefix+"查询任务信息:重置时间", g.Map{"task": task, "score": score, "run_count": runCount})
 
 	//  finish调用成功
 	if task.Status == ConstFinishSuccess && task.ParentId == 0 {
@@ -412,9 +415,7 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 	if runCount > 10 {
 		common.LoggerInfo(ctx, prefix+"任务运行超过10次", nil)
 
-		logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"status": ConstRunMaxRetry})
-
-		//todo 假如子任务超过运行次数则修改主任务超时
+		logic.Update(ctx, g.Map{"trace_id": []string{traceId, task.MainTraceId}}, g.Map{"status": ConstRunMaxRetry})
 
 		//RedisLogic.Redis{}.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
 		redis.DeleteSortedMember(logic.FinishSetName(routeInfo.Id), traceId)
@@ -440,6 +441,15 @@ func (logic TaskLogic) CallFinishApi(ctx context.Context, traceId string, routeI
 	logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"count": runCount, "request_param": jsonReq})
 
 	response := RequestLogic.Request{}.Post(ctx, task.PushUrl, req)
+
+	defer func() {
+		if r := recover(); r != nil {
+			common.LoggerInfo(ctx, prefix+"调用API成功修改回调异常", g.Map{
+				"err":   r,
+				"trace": common.Stack(),
+			})
+		}
+	}()
 
 	logic.Update(ctx, g.Map{"trace_id": traceId}, g.Map{"result": response})
 

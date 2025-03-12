@@ -11,6 +11,7 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/guid"
+	"time"
 )
 
 type TaskService struct {
@@ -155,4 +156,49 @@ func (service TaskService) FindInfo(ctx context.Context, traceId string) entity.
 	}()
 
 	return service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
+}
+
+// Retry
+// @Description: 修改任务状态重新投递
+// @receiver service
+// @param ctx
+// @param traceId
+func (service TaskService) Retry(ctx context.Context, traceId string) g.Map {
+	common.LoggerInfo(ctx, "Retry:接收到数据", g.Map{"trace_id": traceId})
+
+	redis := RedisLogic.InitRedis(ctx)
+
+	lockValue := guid.S()
+
+	redis.Lock(traceId, lockValue, 5, 15)
+
+	defer func() {
+		redis.ReleaseLock(traceId, lockValue)
+	}()
+
+	task := service.TaskLogic.Find(ctx, g.Map{"trace_id": traceId})
+
+	if task.Id == 0 {
+		panic("Retry:任务不存在:trace_id:" + traceId)
+	}
+
+	if task.ParentId == 0 {
+		_, err := service.TaskLogic.GetDao(ctx).
+			WhereNotIn("status", []int{
+				TaskLogic.ConstRunSuccess,
+				TaskLogic.ConstFinishSuccess,
+				TaskLogic.ConstCancel,
+			}).Where(g.Map{"main_trace_id": task.MainTraceId}).
+			Data(g.Map{"status": TaskLogic.ConstAlreadyPushFinish, "count": 0}).Update()
+
+		if err != nil {
+			panic("Retry:主任务重试运行异常:trace_id:" + traceId)
+		}
+	} else {
+		service.TaskLogic.Update(ctx, g.Map{"trace_id": task.TraceId}, g.Map{"status": TaskLogic.ConstAlreadyPushFinish, "count": 0})
+	}
+
+	service.TaskLogic.AddFinishSortedSet(ctx, task.RouteId, time.Now().Unix(), traceId)
+
+	return g.Map{"trace_id": traceId}
 }

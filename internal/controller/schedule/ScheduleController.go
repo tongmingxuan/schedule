@@ -122,3 +122,17 @@ func (controller Schedule) Test(req *ghttp.Request) {
 		param,
 	))
 }
+
+func (controller Schedule) Retry(req *ghttp.Request) {
+	retryReq := request.ConfirmReq{}
+
+	if err := req.Parse(&retryReq); err != nil {
+		req.SetError(err)
+
+		return
+	}
+
+	common.ApiResponse(req, service.TaskService{}.Retry(req.GetCtx(),
+		retryReq.TraceId,
+	))
+}
