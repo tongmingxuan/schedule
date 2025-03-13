@@ -1,15 +1,12 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : schedule-prod-tongmingxuan
  Source Server Type    : MySQL
  Source Server Version : 80036 (8.0.36)
- Source Host           : 59.110.171.117:3306
  Source Schema         : schedule
 
  Target Server Type    : MySQL
  Target Server Version : 80036 (8.0.36)
- File Encoding         : 65001
 
  Date: 13/03/2025 17:27:05
 */
